@@ -8,36 +8,43 @@ import ru.yandex.practicum.filmorate.util.Constants;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class FilmService {
-    private final Map<String, Film> films = new HashMap<>();
+    private final Map<Integer, Film> films = new HashMap<>();
+    private static final AtomicInteger id = new AtomicInteger(0);
 
+    /**
+     * Судя по ТЗ9, на данном этапе не проводится проверка названия новго фильма на пересечение с уже существующим.
+     */
     public Film addFilm(Film film) {
         validateFilm(film);
-        if (films.containsKey(film.getDescription())) {
-            throw new ValidationException("Такой фильм уже существует: " + film.getDescription());
-        }
-        films.put(film.getDescription(), film);
+        film.setId(id.incrementAndGet());
+        films.put(film.getId(), film);
+        log.debug("Успешно добавлен новый фильм c id=" + film.getId());
         return film;
     }
 
     public Collection<Film> findAllFilms() {
+        log.debug("Успешно возвращена коллекция фильмов.");
         return films.values();
     }
 
-    public Film updateFilm(Film film) {
+    public Film updateFilm(Film film) throws RuntimeException {
         validateFilm(film);
-        if (films.containsKey(film.getDescription())) {
-            films.remove(film.getDescription());
+        if (!films.containsKey(film.getId())) {
+            throw new ValidationException("Фильм с id=" + film.getId() + " не найден.");
         }
-        films.put(film.getDescription(), film);
+        films.remove(film.getId());
+        films.put(film.getId(), film);
+        log.debug("Фильм с id=" + film.getId() + " успешно обновлен.");
         return film;
     }
 
-    private void validateFilm(Film film) {
-        if (film.getDescription().isBlank() || film.getDescription().isEmpty()) {
-            log.info("Название фильма пустое или поле film.description пустое.");
+    private Film validateFilm(Film film) {
+        if (film.getName().isBlank() || film.getName().isEmpty()) {
+            log.info("Название фильма пустое или поле film.name пустое.");
             throw new ValidationException("Название фильма не может быть пустым.");
         } else if (film.getDescription().length() > Constants.MAX_LENGTH_OF_DESCRIPTION) {
             log.info("Кол-во символов в описании фильма превысило максимально допустимое.");
@@ -49,5 +56,6 @@ public class FilmService {
             log.info("Продолжительность фильма меньше нуля.");
             throw new ValidationException("Продолжительность фильма не может быть меньше нуля или равняться нулю.");
         }
+        return film;
     }
 }

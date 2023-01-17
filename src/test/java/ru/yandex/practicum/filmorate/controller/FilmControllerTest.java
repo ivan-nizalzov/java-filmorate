@@ -20,13 +20,12 @@ class FilmControllerTest {
     /**
      * Граничные условия:
      * 1. Добавить новый фильм
-     * 2. Добавить уже существующий фильм
-     * 3. Обновить фильм
-     * 4. Получить список всех фильмов (2  фильма)
-     * 5. Добавить фильм с пустым названием
-     * 6. Добавить фильм с описанием, превышающим максимальное допустимое кол-во символов
-     * 7. Добавить фильм с датой релиза ранее 28.12.1895
-     * 8. Добавить фильм с продолжительностью меньше нуля
+     * 2. Обновить фильм
+     * 3. Получить список всех фильмов (2  фильма)
+     * 4. Добавить фильм с пустым названием
+     * 5. Добавить фильм с описанием, превышающим максимальное допустимое кол-во символов
+     * 6. Добавить фильм с датой релиза ранее 28.12.1895
+     * 7. Добавить фильм с продолжительностью меньше нуля
      **/
 
     FilmController filmController;
@@ -51,27 +50,11 @@ class FilmControllerTest {
     }
 
     @Test
-    void shouldThrowExceptionThenAddExistingFilm() {
-        Film film2 = Film.builder()
-                .id(2)
-                .name("FilmName")
-                .description("Film2Description")
-                .releaseDate(LocalDate.of(2020, 10, 12))
-                .duration(130)
-                .build();
-        filmController.addFilm(film);
-
-        ValidationException exception = assertThrows(ValidationException.class, () -> filmController.addFilm(film2));
-        assertEquals(exception.getMessage(), exception.getMessage());
-        assertEquals(1, filmController.findAllFilms().size());
-    }
-
-    @Test
     void shouldUpdateFilm() {
         Film film2 = Film.builder()
-                .id(2)
+                .id(1)
                 .name("FilmName")
-                .description("Film2Description")
+                .description("FilmNewDescription")
                 .releaseDate(LocalDate.of(2020, 10, 12))
                 .duration(130)
                 .build();
@@ -79,7 +62,7 @@ class FilmControllerTest {
         filmController.updateFilm(film2);
         List<Film> filmList = new ArrayList<>();
         filmList.addAll(filmController.findAllFilms());
-        assertEquals(2, filmList.get(0).getId());
+        assertEquals("FilmNewDescription", filmList.get(0).getDescription());
     }
 
     @Test

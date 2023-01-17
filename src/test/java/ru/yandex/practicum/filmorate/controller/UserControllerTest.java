@@ -19,13 +19,12 @@ class UserControllerTest {
      * Граничные условия:
      * 1. Создать новго пользователя
      * 2. Обновить существующего пользователя
-     * 3. Создать пользователя с существующим email
-     * 4. Создать пользователя с пустым email
-     * 5. Создать пользователя с email без @
-     * 6. Создать пользователя с пустым логином
-     * 7. Создать пользователя с проблелами в email
-     * 8. Создать пользователя без имени, присвоим полю значение логина
-     * 9. Создать пользователя с датой рождения в будущем
+     * 3. Создать пользователя с пустым email
+     * 4. Создать пользователя с email без @
+     * 5. Создать пользователя с пустым логином
+     * 6. Создать пользователя с проблелами в логине
+     * 7. Создать пользователя без имени, присвоим полю значение логина
+     * 8. Создать пользователя с датой рождения в будущем
      **/
 
     User user;
@@ -52,32 +51,17 @@ class UserControllerTest {
     @Test
     void shouldUpdateUser() {
         User user2 = User.builder()
-                .id(2)
+                .id(1)
                 .email("test22@test.com")
                 .login("login2")
-                .name("User2Name")
+                .name("UserNewName")
                 .birthday(LocalDate.of(1990, 10, 01))
                 .build();
         userController.createUser(user);
         userController.updateUser(user2);
         List<User> userList = new ArrayList<>();
         userList.addAll(userController.findAllUsers());
-        assertEquals(2, userList.get(0).getId());
-    }
-
-    @Test
-    void shouldThrowExceptionThenAddExistingEmail() {
-        User user2 = User.builder()
-                .id(2)
-                .email("test@test.com")
-                .login("login2")
-                .name("User2Name")
-                .birthday(LocalDate.of(1990, 10, 01))
-                .build();
-        userController.createUser(user);
-
-        ValidationException exception = assertThrows(ValidationException.class, () -> userController.createUser(user2));
-        assertEquals(exception.getMessage(), exception.getMessage());
+        assertEquals("login2", userList.get(0).getLogin());
     }
 
     @Test
@@ -123,11 +107,11 @@ class UserControllerTest {
     }
 
     @Test
-    void shouldThrowExceptionThenAddEmailWithSpaces() {
+    void shouldThrowExceptionThenAddLoginWithSpaces() {
         User user2 = User.builder()
                 .id(2)
-                .email(" test@test.com")
-                .login("login")
+                .email("test@test.com")
+                .login(" login")
                 .name("User2Name")
                 .birthday(LocalDate.of(1990, 10, 01))
                 .build();

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.FilmorateApplication;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -19,9 +20,9 @@ public class FilmController {
     }
 
     @PostMapping
-    public void addFilm(@RequestBody Film film) {
+    public Film addFilm(@RequestBody Film film) {
         log.debug("POST-запрос: добавить новый фильм.");
-        filmService.addFilm(film);
+        return filmService.addFilm(film);
     }
 
     @PutMapping

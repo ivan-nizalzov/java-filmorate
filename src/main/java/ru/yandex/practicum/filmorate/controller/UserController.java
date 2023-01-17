@@ -19,9 +19,9 @@ public class UserController {
     }
 
     @PostMapping
-    public void createUser(@RequestBody User user) {
+    public User createUser(@RequestBody User user) {
         log.debug("POST-запрос: создать нового пользователя.");
-        userService.createUser(user);
+        return userService.createUser(user);
     }
 
     @PutMapping
