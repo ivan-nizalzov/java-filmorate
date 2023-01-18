@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.FilmorateApplication;
@@ -10,12 +11,14 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/films")
+@RequiredArgsConstructor
 @Slf4j
 public class FilmController {
-    private final FilmService filmService = new FilmService();
+    private final FilmService filmService;
 
     @GetMapping
     public Collection<Film> findAllFilms() {
+        log.debug("GET-запрос: получить коллекцию всех фильмов.");
         return filmService.findAllFilms();
     }
 

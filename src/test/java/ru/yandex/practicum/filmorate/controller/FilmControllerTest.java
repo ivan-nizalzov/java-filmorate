@@ -5,10 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.util.Constants;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,23 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class FilmControllerTest {
-    /**
-     * Граничные условия:
-     * 1. Добавить новый фильм
-     * 2. Обновить фильм
-     * 3. Получить список всех фильмов (2  фильма)
-     * 4. Добавить фильм с пустым названием
-     * 5. Добавить фильм с описанием, превышающим максимальное допустимое кол-во символов
-     * 6. Добавить фильм с датой релиза ранее 28.12.1895
-     * 7. Добавить фильм с продолжительностью меньше нуля
-     **/
-
-    FilmController filmController;
-    Film film;
+    private FilmController filmController;
+    private Film film;
 
     @BeforeEach
     void beforeEach() {
-        filmController = new FilmController();
+        filmController = new FilmController(new FilmService(new HashMap<>()));
         film = Film.builder()
                 .id(1)
                 .name("FilmName")

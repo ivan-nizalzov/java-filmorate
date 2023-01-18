@@ -5,34 +5,24 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.lang.reflect.Executable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class UserControllerTest {
-    /**
-     * Граничные условия:
-     * 1. Создать новго пользователя
-     * 2. Обновить существующего пользователя
-     * 3. Создать пользователя с пустым email
-     * 4. Создать пользователя с email без @
-     * 5. Создать пользователя с пустым логином
-     * 6. Создать пользователя с проблелами в логине
-     * 7. Создать пользователя без имени, присвоим полю значение логина
-     * 8. Создать пользователя с датой рождения в будущем
-     **/
-
-    User user;
-    UserController userController;
+    private User user;
+    private UserController userController;
 
     @BeforeEach
     void beforeEach() {
-        userController = new UserController();
+        userController = new UserController(new UserService(new HashMap<>()));
         user = User.builder()
                 .id(1)
                 .email("test@test.com")

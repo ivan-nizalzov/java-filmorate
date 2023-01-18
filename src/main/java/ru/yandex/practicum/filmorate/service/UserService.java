@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -11,8 +13,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class UserService {
-    private final Map<Integer, User> users = new HashMap<>();
+    private final Map<Integer, User> users;
     private static final AtomicInteger id = new AtomicInteger(0);
 
     public Collection<User> findAllUsers() {
@@ -20,9 +24,6 @@ public class UserService {
         return users.values();
     }
 
-    /**
-     * Судя по ТЗ8, на данном этапе не проводится проверка email нового пользователя на пересечение с уже существующим.
-     */
     public User createUser(User user) {
         validateUser(user);
         user.setId(id.incrementAndGet());

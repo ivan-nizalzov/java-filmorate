@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.util.Constants;
@@ -11,13 +13,12 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class FilmService {
-    private final Map<Integer, Film> films = new HashMap<>();
+    private final Map<Integer, Film> films;
     private static final AtomicInteger id = new AtomicInteger(0);
 
-    /**
-     * Судя по ТЗ9, на данном этапе не проводится проверка названия новго фильма на пересечение с уже существующим.
-     */
     public Film addFilm(Film film) {
         validateFilm(film);
         film.setId(id.incrementAndGet());
