@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -173,7 +174,7 @@ class FilmControllerTest {
     void shouldThrowExceptionThenDeletingInvalidLike() {
         filmController.addFilm(film);
         filmController.addLike(film.getId(), 1);
-        ValidationException exception = assertThrows(ValidationException.class, () -> filmController
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> filmController
                 .deleteLike(film.getId(), 2));
         assertEquals(exception.getMessage(), exception.getMessage());
     }
