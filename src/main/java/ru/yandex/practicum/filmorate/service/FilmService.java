@@ -1,62 +1,65 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.util.Constants;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class FilmService {
-    private final Map<Integer, Film> films;
-    private static final AtomicInteger id = new AtomicInteger(0);
+    private final FilmStorage filmStorage;
 
-    public Film addFilm(Film film) {
-        validateFilm(film);
-        film.setId(id.incrementAndGet());
-        films.put(film.getId(), film);
-        log.debug("Успешно добавлен новый фильм c id=" + film.getId());
-        return film;
+    @Autowired
+    public FilmService(FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
     }
 
-    public Collection<Film> findAllFilms() {
-        log.debug("Успешно возвращена коллекция фильмов.");
-        return films.values();
+    public Film addFilm(Film film) {
+        return filmStorage.addFilm(film);
+    }
+
+    public List<Film> findAllFilms() {
+        return filmStorage.findAllFilms();
     }
 
     public Film updateFilm(Film film) throws RuntimeException {
-        validateFilm(film);
-        if (!films.containsKey(film.getId())) {
-            throw new ValidationException("Фильм с id=" + film.getId() + " не найден.");
-        }
-        films.remove(film.getId());
-        films.put(film.getId(), film);
-        log.debug("Фильм с id=" + film.getId() + " успешно обновлен.");
-        return film;
+        return filmStorage.updateFilm(film);
     }
 
-    private Film validateFilm(Film film) {
-        if (film.getName().isBlank() || film.getName().isEmpty()) {
-            log.info("Название фильма пустое или поле film.name пустое.");
-            throw new ValidationException("Название фильма не может быть пустым.");
-        } else if (film.getDescription().length() > Constants.MAX_LENGTH_OF_DESCRIPTION) {
-            log.info("Кол-во символов в описании фильма превысило максимально допустимое.");
-            throw new ValidationException("Описание фильма не может превышать 200 символов.");
-        } else if (film.getReleaseDate().isBefore(Constants.EARLIEST_DATE_OF_RELEASE)) {
-            log.info("Дата релиза фильма ранее 28.12.1895.");
-            throw new ValidationException("Дата релиза должна быть не раньше 28.12.1895 (первый фильм в истории).");
-        } else if (film.getDuration() <= 0) {
-            log.info("Продолжительность фильма меньше нуля.");
-            throw new ValidationException("Продолжительность фильма не может быть меньше нуля или равняться нулю.");
+    public Film getFilmById(Integer filmId) {
+        return filmStorage.getFilmById(filmId);
+    }
+
+    public void addLike(Integer filmId, Integer userId) {
+        Film film = filmStorage.getFilmById(filmId);
+        film.addLike(userId);
+        filmStorage.updateFilm(film);
+    }
+
+    public void deleteLike(Integer filmId, Integer userId) {
+        Film film = filmStorage.getFilmById(filmId);
+
+        if (userId <= 0) {
+            throw new NotFoundException("id не может быть меньше или равняться нулю, получен id=" + userId);
         }
-        return film;
+        if (!film.getLikesIds().contains(userId)) {
+            throw new NotFoundException("Пользователь с id=" + userId + " не ставил лайк фильму с id=" + filmId + ".");
+        }
+
+        film.deleteLike(userId);
+        filmStorage.updateFilm(film);
+    }
+
+    public List<Film> getMostPopularFilms(Integer count) {
+        return filmStorage.findAllFilms().stream()
+                .sorted(Comparator.comparingInt((Film film) -> film.getLikesIds().size()).reversed())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }
