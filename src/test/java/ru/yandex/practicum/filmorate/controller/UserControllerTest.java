@@ -148,7 +148,6 @@ class UserControllerTest {
                 .get(0).getName());
     }
     // The end of positive tests
-
     //>>>>>>>>>> Negative tests
     @Test
     void shouldThrowExceptionThenAddEmptyEmail() {

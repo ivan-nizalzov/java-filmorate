@@ -108,7 +108,6 @@ class FilmControllerTest {
         assertEquals("FilmName", filmController.getMostPopularFilms(1).get(0).getName());
     }
     // The end of positive tests
-
     //>>>>>>>>>> Negative tests
     @Test
     void shouldThrowExceptionThenAddEmptyName() {
