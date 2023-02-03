@@ -3,11 +3,9 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.util.Constants;
 
 import java.time.LocalDate;
@@ -25,11 +23,10 @@ class FilmControllerTest {
     private Film film;
 
     @BeforeEach
-    void prepareTest() {
-        this.filmController = new FilmController(
-                new FilmService( new InMemoryFilmStorage(new HashMap<>())));
+    void beforeEach() {
+        filmController = new FilmController(new FilmService(new HashMap<>()));
         film = Film.builder()
-                .id(0)
+                .id(1)
                 .name("FilmName")
                 .description("FilmDescription")
                 .releaseDate(LocalDate.of(2020, 10, 12))
@@ -37,7 +34,6 @@ class FilmControllerTest {
                 .build();
     }
 
-    //>>>>>>>>>> Positive tests
     @Test
     void shouldAddFilm() {
         filmController.addFilm(film);
@@ -63,7 +59,7 @@ class FilmControllerTest {
     @Test
     void shouldGetAllFilms() {
         Film film2 = Film.builder()
-                .id(0)
+                .id(2)
                 .name("NewFilmName")
                 .description("Film2Description")
                 .releaseDate(LocalDate.of(2020, 10, 12))
@@ -74,42 +70,6 @@ class FilmControllerTest {
         assertEquals(2, filmController.findAllFilms().size());
     }
 
-    @Test
-    void shouldGetFilmById() {
-        filmController.addFilm(film);
-        Film testFilm = filmController.getFilmById(film.getId());
-        assertEquals("FilmName", testFilm.getName());
-    }
-
-    @Test
-    void shouldAddLike() {
-        filmController.addFilm(film);
-        filmController.addLike(film.getId(), 1);
-
-        assertEquals(1, filmController.getFilmById(film.getId()).getLikesIds().size());
-        assertEquals(true, filmController.getFilmById(film.getId()).getLikesIds().contains(1));
-    }
-
-    @Test
-    void shouldDeleteLike() {
-        filmController.addFilm(film);
-        filmController.addLike(film.getId(), 1);
-
-        filmController.deleteLike(film.getId(), 1);
-        assertEquals(true, filmController.getFilmById(film.getId()).getLikesIds().isEmpty());
-    }
-
-    @Test
-    void shouldGetMostPopularFilms() {
-        filmController.addFilm(film);
-        filmController.addLike(film.getId(), 1);
-
-        assertEquals(1, filmController.getMostPopularFilms(1).size());
-        assertEquals("FilmName", filmController.getMostPopularFilms(1).get(0).getName());
-    }
-    // The end of positive tests
-
-    //>>>>>>>>>> Negative tests
     @Test
     void shouldThrowExceptionThenAddEmptyName() {
         Film film2 = Film.builder()
@@ -169,26 +129,4 @@ class FilmControllerTest {
         assertEquals(exception.getMessage(), exception.getMessage());
         assertEquals(0, filmController.findAllFilms().size());
     }
-
-    @Test
-    void shouldThrowExceptionThenDeletingInvalidLike() {
-        filmController.addFilm(film);
-        filmController.addLike(film.getId(), 1);
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> filmController
-                .deleteLike(film.getId(), 2));
-        assertEquals(exception.getMessage(), exception.getMessage());
-    }
-
-    @Test
-    void shouldThrowExceptionThenNumberOfPopularFilmsIsNegativeOrNull() {
-        filmController.addFilm(film);
-        filmController.addLike(film.getId(), 1);
-        ValidationException exception = assertThrows(ValidationException.class, () -> filmController
-                .getMostPopularFilms(0));
-        assertEquals(exception.getMessage(), exception.getMessage());
-        ValidationException exception2 = assertThrows(ValidationException.class, () -> filmController
-                .getMostPopularFilms(-1));
-        assertEquals(exception2.getMessage(), exception2.getMessage());
-    }
-    // The end of negative tests
 }
