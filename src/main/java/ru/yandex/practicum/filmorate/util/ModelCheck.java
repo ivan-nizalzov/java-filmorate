@@ -1,56 +1,23 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.util;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-@RequiredArgsConstructor
-@Component
-public class InMemoryUserStorage implements UserStorage {
-    private final Map<Integer, User> users;
-    private static final AtomicInteger id = new AtomicInteger(0);
+public class ModelCheck {
 
-    @Override
-    public Collection<User> findAllUsers() {
-        return users.values();
-    }
-
-    @Override
-    public User createUser(User user) {
-        validateUser(user);
-        user.setId(id.incrementAndGet());
-        users.put(user.getId(), user);
-        return user;
-    }
-
-    @Override
-    public User updateUser(User user) {
-        validateUser(user);
-        if (!users.containsKey(user.getId())) {
-            throw new NotFoundException("Пользователь с id=" + user.getId() + " не найден.");
+    public static void validateId(Integer id) {
+        if (id == null) {
+            log.info("Id некорректен, получен id={}", id);
+            throw new ValidationException("Id не может быть пустым.");
         }
-        users.remove(user.getId());
-        users.put(user.getId(), user);
-        return user;
     }
 
-    @Override
-    public User getUserById(Integer userId) {
-        if (!users.containsKey(userId)) {
-            throw new NotFoundException("Пользователь с id=" + userId + " не найден.");
-        }
-        return users.get(userId);
-    }
-
-    private User validateUser(User user) {
+    public static User validateUser(User user) {
         if (user.getEmail().isEmpty() || user.getEmail().isBlank()) {
             log.info("Email пустой или поле user.email пустое.");
             throw new ValidationException("Адрес электронной почты не может быть пустым.");
@@ -71,5 +38,23 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
         return user;
+    }
+
+
+    public static Film validateFilm(Film film) {
+        if (film.getName().isBlank() || film.getName().isEmpty()) {
+            log.info("Название фильма пустое или поле film.name пустое.");
+            throw new ValidationException("Название фильма не может быть пустым.");
+        } else if (film.getDescription().length() > Constants.MAX_LENGTH_OF_DESCRIPTION) {
+            log.info("Кол-во символов в описании фильма превысило максимально допустимое.");
+            throw new ValidationException("Описание фильма не может превышать 200 символов.");
+        } else if (film.getReleaseDate().isBefore(Constants.EARLIEST_DATE_OF_RELEASE)) {
+            log.info("Дата релиза фильма ранее 28.12.1895.");
+            throw new ValidationException("Дата релиза должна быть не раньше 28.12.1895 (первый фильм в истории).");
+        } else if (film.getDuration() <= 0) {
+            log.info("Продолжительность фильма меньше нуля.");
+            throw new ValidationException("Продолжительность фильма не может быть меньше нуля или равняться нулю.");
+        }
+        return film;
     }
 }
