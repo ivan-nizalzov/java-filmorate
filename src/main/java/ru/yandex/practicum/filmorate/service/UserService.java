@@ -37,8 +37,6 @@ public class UserService {
     }
 
     public Long addFriend(Long userId, Long friendId) throws NotFoundException {
-        //userStorage.findById(userId);
-        //userStorage.findById(friendId);
         checkUserInDb(userId);
         checkUserInDb(friendId);
         return userStorage.addFriend(userId, friendId);
@@ -50,8 +48,6 @@ public class UserService {
     }
 
     public void deleteFriend(Long userId, Long friendId) throws NotFoundException {
-        //userStorage.findById(userId);
-        //userStorage.findById(friendId);
         checkUserInDb(userId);
         checkUserInDb(friendId);
         Collection userFriends = userStorage.findUserFriendsIdById(userId);
@@ -63,8 +59,6 @@ public class UserService {
     }
 
     public List<User> findCommonFriends(Long firstUserId, Long secondUserId) throws NotFoundException {
-        //userStorage.findById(firstUserId);
-        //userStorage.findById(secondUserId);
         checkUserInDb(firstUserId);
         checkUserInDb(secondUserId);
         return (List<User>) userStorage.findCommonFriends(firstUserId, secondUserId);

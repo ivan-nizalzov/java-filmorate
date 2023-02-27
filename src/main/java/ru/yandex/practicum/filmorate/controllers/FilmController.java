@@ -17,10 +17,6 @@ import java.util.Collection;
 public class FilmController {
     private final FilmService filmService;
 
-   /* public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }*/
-
     @GetMapping
     public Collection<Film> findAll() throws NotFoundException {
         log.info("Запрос на получение всех фильмов");

@@ -13,7 +13,6 @@ import java.util.Collection;
 @RequiredArgsConstructor
 @Slf4j
 public class MpaService {
-
     private final MpaStorage mpaDao;
 
     public Collection<MPA> findAll() {

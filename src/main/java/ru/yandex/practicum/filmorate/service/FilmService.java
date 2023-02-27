@@ -40,16 +40,12 @@ public class FilmService {
     }
 
     public Long deleteLike(Long filmId, Long userId) throws NotFoundException {
-        //filmStorage.findById(filmId);
-        //userStorage.findById(userId);
         checkFilmInDb(filmId);
         checkUserInDb(userId);
         return filmStorage.deleteLike(filmId, userId);
     }
 
     public Long addLike(Long filmId, Long userId) throws NotFoundException {
-        //filmStorage.findById(filmId);
-        //userStorage.findById(userId);
         checkFilmInDb(filmId);
         checkUserInDb(userId);
         return filmStorage.addLike(filmId, userId);
