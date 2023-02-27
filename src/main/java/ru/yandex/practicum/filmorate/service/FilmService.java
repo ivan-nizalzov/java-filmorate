@@ -23,7 +23,7 @@ public class FilmService {
     }
 
     public Film getFilmById(Long id) throws NotFoundException {
-        return filmStorage.findByID(id);
+        return filmStorage.findById(id);
     }
 
     public Film create(Film film) {
@@ -40,14 +40,26 @@ public class FilmService {
     }
 
     public Long deleteLike(Long filmId, Long userId) throws NotFoundException {
-        filmStorage.findByID(filmId);
-        userStorage.findByID(userId);
+        //filmStorage.findById(filmId);
+        //userStorage.findById(userId);
+        checkFilmInDb(filmId);
+        checkUserInDb(userId);
         return filmStorage.deleteLike(filmId, userId);
     }
 
     public Long addLike(Long filmId, Long userId) throws NotFoundException {
-        filmStorage.findByID(filmId);
-        userStorage.findByID(userId);
+        //filmStorage.findById(filmId);
+        //userStorage.findById(userId);
+        checkFilmInDb(filmId);
+        checkUserInDb(userId);
         return filmStorage.addLike(filmId, userId);
+    }
+
+    private void checkFilmInDb(Long filmId) throws NotFoundException {
+        filmStorage.findById(filmId);
+    }
+
+    private void checkUserInDb(Long userId) throws NotFoundException {
+        userStorage.findById(userId);
     }
 }

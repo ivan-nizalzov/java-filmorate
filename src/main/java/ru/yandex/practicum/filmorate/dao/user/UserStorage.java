@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface UserStorage {
-    User findByID(long userID) throws NotFoundException;
+    User findById(long userID) throws NotFoundException;
 
     List<User> findAll() throws NotFoundException;
 

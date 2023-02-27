@@ -57,12 +57,12 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film findByID(long filmId) throws NotFoundException {
+    public Film findById(long filmId) throws NotFoundException {
         final String sqlQuery ="SELECT * FROM FILMS WHERE FILM_ID = ?";
 
         final List<Film> films = jdbcTemplate.query(sqlQuery, FilmDbStorage::makeFilm, filmId);
         if (films.size() < 1) {
-            throw new NotFoundException("films",filmId);
+            throw new NotFoundException("Film with id=" + filmId + " was not found.");
         }
         return films.get(0);
     }
@@ -70,7 +70,11 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Collection<Film> findAll() throws NotFoundException {
         final String sqlQuery = "SELECT * FROM FILMS";
-        return jdbcTemplate.query(sqlQuery,(rs, rowNum) -> FilmDbStorage.makeFilm(rs, rowNum));
+        final Collection<Film> films = jdbcTemplate.query(sqlQuery,(rs, rowNum) -> FilmDbStorage.makeFilm(rs, rowNum));
+        /*if (films.size() == 0) {
+            throw new NotFoundException("Films were not found.",filmId);
+        }*/
+        return films;
     }
 
     @Override
@@ -108,7 +112,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) throws NotFoundException {
-        findByID(film.getId());
+        findById(film.getId());
 
         final String sqlQuery = "UPDATE FILMS SET NAME=?, DESCRIPTION=?, RELEASE_DATE=?," +
                 " DURATION=?, MPA_ID=? WHERE FILM_ID=? ";
@@ -129,7 +133,7 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         log.info("Фильм с id={} успешно обновлен", film.getId());
-        return findByID(film.getId());
+        return findById(film.getId());
     }
 
     @Override

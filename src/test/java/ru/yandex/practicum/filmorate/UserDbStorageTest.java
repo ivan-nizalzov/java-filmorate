@@ -74,7 +74,7 @@ public class UserDbStorageTest {
     }
     @Test
     public void shouldReturnUser_Id_1() throws NotFoundException {
-        User foundUser = userDbStorage.findByID(1L);
+        User foundUser = userDbStorage.findById(1L);
         assertThat(foundUser.getId()).isEqualTo(1L);
         assertThat(foundUser.getEmail()).isEqualTo("test@email.com");
         assertThat(foundUser.getLogin()).isEqualTo("TestUser");

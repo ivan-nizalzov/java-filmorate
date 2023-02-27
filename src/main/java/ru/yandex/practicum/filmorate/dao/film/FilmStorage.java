@@ -8,7 +8,7 @@ import java.util.Collection;
 
 public interface FilmStorage {
 
-    Film findByID(long filmId) throws NotFoundException;
+    Film findById(long filmId) throws NotFoundException;
 
     Collection<Film> findAll() throws NotFoundException;
 

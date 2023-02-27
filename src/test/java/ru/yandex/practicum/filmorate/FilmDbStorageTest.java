@@ -44,7 +44,7 @@ public class FilmDbStorageTest {
     }
     @Test
     public void findFilmByIdTest() throws NotFoundException {
-        Film foundFilm = filmDbStorage.findByID(film.getId());
+        Film foundFilm = filmDbStorage.findById(film.getId());
         assertThat(film.getId()).isEqualTo(foundFilm.getId());
         assertThat(film.getName()).isEqualTo(foundFilm.getName());
         assertThat(film.getDescription()).isEqualTo(foundFilm.getDescription());

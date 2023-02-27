@@ -24,9 +24,6 @@ public class UserService {
     }
 
     public User create(User user) {
-        /*if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }*/
         ModelCheck.validateUser(user);
         return userStorage.create(user);
     }
@@ -36,23 +33,27 @@ public class UserService {
     }
 
     public User findById(Long userId) throws NotFoundException {
-        return userStorage.findByID(userId);
+        return userStorage.findById(userId);
     }
 
     public Long addFriend(Long userId, Long friendId) throws NotFoundException {
-        userStorage.findByID(userId);
-        userStorage.findByID(friendId);
+        //userStorage.findById(userId);
+        //userStorage.findById(friendId);
+        checkUserInDb(userId);
+        checkUserInDb(friendId);
         return userStorage.addFriend(userId, friendId);
     }
 
     public List<User> findAllUserFriendsById(Long userId) throws NotFoundException {
-        userStorage.findByID(userId);
+        userStorage.findById(userId);
         return (List<User>) userStorage.findUserFriendsById(userId);
     }
 
     public void deleteFriend(Long userId, Long friendId) throws NotFoundException {
-        userStorage.findByID(userId);
-        userStorage.findByID(friendId);
+        //userStorage.findById(userId);
+        //userStorage.findById(friendId);
+        checkUserInDb(userId);
+        checkUserInDb(friendId);
         Collection userFriends = userStorage.findUserFriendsIdById(userId);
         if (!userFriends.contains(friendId)) {
             throw new NotFoundException(userId + ", не друг пользователю " + friendId);
@@ -62,8 +63,14 @@ public class UserService {
     }
 
     public List<User> findCommonFriends(Long firstUserId, Long secondUserId) throws NotFoundException {
-        userStorage.findByID(firstUserId);
-        userStorage.findByID(secondUserId);
+        //userStorage.findById(firstUserId);
+        //userStorage.findById(secondUserId);
+        checkUserInDb(firstUserId);
+        checkUserInDb(secondUserId);
         return (List<User>) userStorage.findCommonFriends(firstUserId, secondUserId);
+    }
+
+    private void checkUserInDb(Long userId) throws NotFoundException {
+        userStorage.findById(userId);
     }
 }

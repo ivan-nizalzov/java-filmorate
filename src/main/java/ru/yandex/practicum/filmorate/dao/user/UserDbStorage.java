@@ -33,7 +33,6 @@ public class UserDbStorage implements UserStorage {
         String login = rs.getString("LOGIN");
         String name = rs.getString("NAME");
         LocalDate birthday = rs.getDate("BIRTHDAY").toLocalDate();
-        //Set<Long> friend = new HashSet<>(friendDao.findAllIdFriendsUserById(id));
 
         return User.builder().
                 id(id).
@@ -45,11 +44,11 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User findByID(long userId) throws NotFoundException {
+    public User findById(long userId) throws NotFoundException {
         final String sqlQuery = "SELECT * FROM USERS WHERE USER_ID = ?";
         final List<User> users = jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser, userId);
         if (users.size() < 1) {
-            throw new NotFoundException("user", userId);
+            throw new NotFoundException("User with id=" + userId + " was not found.");
         }
         return users.get(0);
     }
@@ -59,7 +58,7 @@ public class UserDbStorage implements UserStorage {
         final String sqlQuery = "SELECT * FROM USERS";
         final List<User> users = jdbcTemplate.query(sqlQuery, UserDbStorage::makeUser);
         if (users.size() == 0) {
-            throw new NotFoundException("users");
+            throw new NotFoundException("Users were not found.");
         }
         return users;
     }
@@ -90,7 +89,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) throws NotFoundException {
-        findByID(user.getId());
+        findById(user.getId());
 
         final String sqlQuery = "UPDATE USERS SET NAME = ?, EMAIL = ?, LOGIN = ?, BIRTHDAY = ? WHERE USER_ID = ?";
         jdbcTemplate.update(sqlQuery,
