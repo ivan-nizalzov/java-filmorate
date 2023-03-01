@@ -1,97 +1,70 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.user.UserStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.util.ModelCheck;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-@Slf4j
 @Service
+@Slf4j
 public class UserService {
     private final UserStorage userStorage;
 
-    @Autowired
     public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
-    public Collection<User> findAllUsers() {
-        return userStorage.findAllUsers();
+    public Collection<User> findAll() throws NotFoundException {
+        return userStorage.findAll();
     }
 
-    public User createUser(User user) {
-        return userStorage.createUser(user);
+    public User create(User user) {
+        ModelCheck.validateUser(user);
+        return userStorage.create(user);
     }
 
-    public User updateUser(User user) {
-        return userStorage.updateUser(user);
+    public User update(User user) throws UserNotFoundException, NotFoundException {
+        return userStorage.update(user);
     }
 
-    public User getUserById(Integer userId) {
-        return userStorage.getUserById(userId);
+    public User findById(Long userId) throws NotFoundException {
+        return userStorage.findById(userId);
     }
 
-    public void addFriend(Integer userId, Integer friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
+    public Long addFriend(Long userId, Long friendId) throws NotFoundException {
+        checkUserInDb(userId);
+        checkUserInDb(friendId);
+        return userStorage.addFriend(userId, friendId);
+    }
 
-        if (userId.equals(friendId)) {
-            throw new ValidationException("Id пользователей не могут быть одинаковыми при добавлении в друзья.");
+    public List<User> findAllUserFriendsById(Long userId) throws NotFoundException {
+        userStorage.findById(userId);
+        return (List<User>) userStorage.findUserFriendsById(userId);
+    }
+
+    public void deleteFriend(Long userId, Long friendId) throws NotFoundException {
+        checkUserInDb(userId);
+        checkUserInDb(friendId);
+        Collection userFriends = userStorage.findUserFriendsIdById(userId);
+        if (!userFriends.contains(friendId)) {
+            throw new NotFoundException(userId + ", не друг пользователю " + friendId);
         }
-
-        user.addFriend(friendId);
-        friend.addFriend(userId);
-        userStorage.updateUser(user);
-        userStorage.updateUser(friend);
+        userStorage.deleteFriend(userId, friendId);
+        log.info(userId + " удален из друзей " + friendId);
     }
 
-    public void deleteFriend(Integer userId, Integer friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-
-        if (!user.getFriendsId().contains(friend.getId())) {
-            throw new ValidationException("Пользователь с id=" + friendId + " не был добавлен в друзья пользователю" +
-                    " с id=" + userId);
-        }
-
-        user.deleteFriend(friendId);
-        friend.deleteFriend(userId);
-        userStorage.updateUser(user);
-        userStorage.updateUser(friend);
+    public List<User> findCommonFriends(Long firstUserId, Long secondUserId) throws NotFoundException {
+        checkUserInDb(firstUserId);
+        checkUserInDb(secondUserId);
+        return (List<User>) userStorage.findCommonFriends(firstUserId, secondUserId);
     }
 
-    public List<User> getUserFriends(Integer userId) {
-        User user = userStorage.getUserById(userId);
-
-        return user.getFriendsId()
-                .stream()
-                .map(userStorage::getUserById)
-                .collect(Collectors.toList());
+    private void checkUserInDb(Long userId) throws NotFoundException {
+        userStorage.findById(userId);
     }
-
-    public List<User> getMutualFriends(Integer userId, Integer otherUserId) {
-
-        if (userId.equals(otherUserId)) {
-            throw new ValidationException("Id пользователей не могут быть одинаковыми для вывода списка общих друзей.");
-        }
-        if (userId == null || userId <= 0) {
-            throw new NotFoundException("id пользователя не может быть меньше или равняться нулю, получен id=" + userId);
-        }
-        if (otherUserId == null || otherUserId <= 0) {
-            throw new NotFoundException("id пользователя не может быть меньше или равняться нулю, получен id=" + otherUserId);
-        }
-
-        return getUserById(userId).getFriendsId()
-                .stream()
-                .filter(getUserById(otherUserId).getFriendsId()::contains)
-                .map(this::getUserById)
-                .collect(Collectors.toList());
-    }
-
 }
